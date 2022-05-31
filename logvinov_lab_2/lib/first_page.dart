@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'second_page.dart';
+import 'package:validators/validators.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -32,6 +33,7 @@ class MyStatefulWidget extends StatefulWidget {
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   final _controller = TextEditingController();
+  bool _textError = false;
 
   MeatType? _type = MeatType.allMeat;
   int? _sentences = 1;
@@ -45,31 +47,35 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        ListTile(
-          title: const Text('All Meat'),
-          leading: Radio<MeatType>(
-            value: MeatType.allMeat,
-            groupValue: _type,
-            onChanged: (MeatType? value) {
-              setState(() {
-                _type = value;
-              });
-            },
+        Center(
+          child: ListTile(
+            title: const Text('All Meat'),
+            leading: Radio<MeatType>(
+              value: MeatType.allMeat,
+              groupValue: _type,
+              onChanged: (MeatType? value) {
+                setState(() {
+                  _type = value;
+                });
+              },
+            ),
           ),
         ),
-        ListTile(
-          title: const Text('Meat and Filler'),
-          leading: Radio<MeatType>(
-            value: MeatType.meatAndFiller,
-            groupValue: _type,
-            onChanged: (MeatType? value) {
-              setState(() {
-                _type = value;
-              });
-            },
+        Center(
+          child: ListTile(
+            title: const Text('Meat and Filler'),
+            leading: Radio<MeatType>(
+              value: MeatType.meatAndFiller,
+              groupValue: _type,
+              onChanged: (MeatType? value) {
+                setState(() {
+                  _type = value;
+                });
+              },
+            ),
           ),
         ),
         Padding(
@@ -78,40 +84,57 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               width: 200.0,
               child: TextField(
                 controller: _controller,
-                decoration: const InputDecoration(
-                    labelText: "Enter a number of paragraphs"),
+                decoration: InputDecoration(
+                    labelText: "Enter a number of sentences",
+                    errorText: _textError
+                        ? 'Paste the number between 1 and 15'
+                        : null),
                 keyboardType: TextInputType.number,
                 inputFormatters: <TextInputFormatter>[
                   FilteringTextInputFormatter.digitsOnly
                 ],
               ),
             )),
-        ElevatedButton(
-            style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.all(15.0),
-                textStyle: const TextStyle(fontSize: 20)),
-            child: const Text("Get Text"),
-            onPressed: () {
-              _sentences = int.parse(_controller.text);
+        Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.all(15.0),
+                    textStyle: const TextStyle(fontSize: 20)),
+                child: const Text("Get Text"),
+                onPressed: () {
+                  _sentences = int.parse(_controller.text);
 
-              String finalType = "all-meat";
-              switch (_type) {
-                case (MeatType.allMeat):
-                  finalType = "all-meat";
-                  break;
-                case (MeatType.meatAndFiller):
-                  finalType = "meat-and-filler";
-                  break;
-                case (null):
-                  break;
-              }
+                  if (_controller.text.isEmpty ||
+                      _sentences! < 1 ||
+                      _sentences! > 15) {
+                    setState(() {
+                      _textError = true;
+                    });
+                  } else {
+                    setState(() {
+                      _textError = false;
+                    });
 
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) =>
-                      TextPage(type: finalType, sentences: _sentences)));
+                    String finalType = "all-meat";
+                    switch (_type) {
+                      case (MeatType.allMeat):
+                        finalType = "all-meat";
+                        break;
+                      case (MeatType.meatAndFiller):
+                        finalType = "meat-and-filler";
+                        break;
+                      case (null):
+                        break;
+                    }
 
-              _controller.clear();
-            }),
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) =>
+                            TextPage(type: finalType, sentences: _sentences)));
+
+                    _controller.clear();
+                  }
+                })),
       ],
     );
   }

@@ -61,25 +61,40 @@ class _MyAppState extends State<TextPage> {
       ),
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Fetch Data Example'),
+          title: const Text('Your Text'),
         ),
         body: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Center(
-            child: FutureBuilder<Bacon>(
-              future: futureBacon,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return Text(snapshot.data!.text);
-                } else if (snapshot.hasError) {
-                  return Text('${snapshot.error}');
-                }
+              child: Column(
+            children: [
+              FutureBuilder<Bacon>(
+                future: futureBacon,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Text(
+                      snapshot.data!.text,
+                      textAlign: TextAlign.justify,
+                    );
+                  } else if (snapshot.hasError) {
+                    return Text('${snapshot.error}');
+                  }
 
-                // By default, show a loading spinner.
-                return const CircularProgressIndicator();
-              },
-            ),
-          ),
+                  // By default, show a loading spinner.
+                  return const CircularProgressIndicator();
+                },
+              ),
+              const SizedBox(
+                width: 10.0,
+                height: 30.0,
+              ),
+              BackButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          )),
         ),
       ),
     );
